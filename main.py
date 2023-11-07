@@ -14,9 +14,25 @@ moving_left = False
 moving_up = False
 moving_down = False
 
+#funcion para escalar
+def scale_img(image,scale):
+    w = image.get_width()
+    h = image.get_height()
+    return pygame.transform.scale(image,(w*scale,h*scale))
 
+animation_types = ["idle","run"]
+animation_list = []
+for animation in animation_types:
+    temp_list = []
+    for i in range(4):
+        image = pygame.image.load(f"assets/images/characters/elf/{animation}/{i}.png").convert_alpha()
+        image = scale_img(image,settings.SCALE)
+        temp_list.append(image)
+    animation_list.append(temp_list)
+
+print(animation_list)
 #creando jugador
-player = Player(100,100)
+player = Player(100,100,animation_list)
 
 
 
@@ -37,6 +53,7 @@ while run:
         dy += settings.SPEED
 
     player.move(dx, dy)
+    player.update()
     player.draw(screen)
     print(str(dx),str(dy))
     for event in pygame.event.get():

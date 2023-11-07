@@ -1,7 +1,8 @@
 FPS = 60
 WIDTH = 800
 HEIGHT = 600
-SPEED = 10
+SCALE = 3
+SPEED = 5
 
 RED = (255,0,0)
 BG = (40,25,25)
