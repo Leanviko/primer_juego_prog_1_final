@@ -29,7 +29,9 @@ arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").con
 #carga de sprites
 mob_animations = []
 mob_types = ["elf","imp","skeleton","goblin","muddy","tiny_zombie","big_demon"]
-animation_types = ["idle","run"]
+
+# lista principal de animaciones[lista de tipo de personaje[lista de animacion de ese personje]]
+animation_types = ["idle","run"]# quieto o corriendo
 for mob in mob_types:
     animation_list = []
     for animation in animation_types:
@@ -42,12 +44,18 @@ for mob in mob_types:
     mob_animations.append(animation_list)
 
 
-#creando jugador
+#creacion jugador y enemigos
 player = Character(100,100,mob_animations,0)
+enemy = Character(100,100,mob_animations,1)
+
 #dibujando arma
 bow = Weapon(bow_image, arrow_image)
 #crear grupo de sprites para las flechas
 arrow_group = pygame.sprite.Group()
+
+#lista de enemigos
+enemy_list = []
+enemy_list.append(enemy)
 
 
 
@@ -67,7 +75,7 @@ while run:
     if moving_down == True:
         dy += settings.SPEED
 
-    #actualizar movimiento
+    #actualizar movimiento jugador
     player.move(dx, dy)
 
     #actualizar jugador y arma
@@ -75,6 +83,8 @@ while run:
     arrow = bow.update(player)
     if arrow:
         arrow_group.add(arrow)
+    for arrow in arrow_group:
+        arrow.update()
 
 
     #dibujar jugador y arma
