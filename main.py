@@ -45,8 +45,8 @@ for mob in mob_types:
 
 
 #creacion jugador y enemigos
-player = Character(100,100,mob_animations,0)
-enemy = Character(100,100,mob_animations,1)
+player = Character(100, 100, 100,mob_animations,0)
+enemy = Character(100, 300, 100,mob_animations,1)
 
 #dibujando arma
 bow = Weapon(bow_image, arrow_image)
@@ -78,16 +78,24 @@ while run:
     #actualizar movimiento jugador
     player.move(dx, dy)
 
-    #actualizar jugador y arma
+    
+    #actualizar enemigo
+    for enemy in enemy_list:
+        enemy.update()
+        print(enemy.health)
+    #actualizar jugador
     player.update()
+    #actualiza flecha
     arrow = bow.update(player)
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:
-        arrow.update()
+        arrow.update(enemy_list)
 
 
     #dibujar jugador y arma
+    for enemy in enemy_list:
+        enemy.draw(screen)
     player.draw(screen)
     bow.draw(screen)
     for arrow in arrow_group:

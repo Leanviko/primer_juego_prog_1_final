@@ -1,3 +1,4 @@
+import random
 import pygame
 import math
 import settings
@@ -51,7 +52,8 @@ class Arrow(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle))*settings.SPEED_ARROW
         self.dy = math.sin(math.radians(self.angle))*settings.SPEED_ARROW*-1
     
-    def update(self):
+    
+    def update(self, enemy_list):
         #cambiar posicion de la flecha segun los diferenciales
         self.rect.x += self.dx
         self.rect.y += self.dy
@@ -59,6 +61,15 @@ class Arrow(pygame.sprite.Sprite):
         #borrar las flechas que salgan de la pantalla
         if self.rect.right < 0 or self.rect.left > settings.WIDTH or self.rect.top < 0 or self.rect.bottom > settings.HEIGHT:
             self.kill()
+
+        #verificamos colision entre flechas y enemigos
+        for enemy in enemy_list:
+            if enemy.rect.colliderect(self.rect):
+                damage = 10 + random.randint(-5,5)
+                enemy.health -= damage
+                self.kill()
+                break
+
 
 
     

@@ -5,7 +5,7 @@ import math
 
 
 class Character():
-    def __init__(self, x, y, mob_animations,char_type):
+    def __init__(self, x, y, health, mob_animations,char_type):
         self.char_type = char_type
         self.flip = False
         self.animation_list = mob_animations[self.char_type]
@@ -13,6 +13,7 @@ class Character():
         self.action = 0 # 0: parado, 1:correr
         self.update_time = pygame.time.get_ticks()
         self.running = False
+        self.health = health 
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = pygame.Rect(0,0,40,40)
         self.rect.center = (x,y)
