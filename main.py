@@ -24,6 +24,7 @@ def scale_img(image,scale):
 
 #carga de las imagenes del arco
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
+arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(),settings.WEAPON_SCALE)
 
 #carga de sprites
 mob_animations = []
@@ -40,11 +41,13 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
 
-print(animation_list)
+
 #creando jugador
 player = Character(100,100,mob_animations,0)
 #dibujando arma
-bow = Weapon(bow_image)
+bow = Weapon(bow_image, arrow_image)
+#crear grupo de sprites para las flechas
+arrow_group = pygame.sprite.Group()
 
 
 
@@ -69,12 +72,18 @@ while run:
 
     #actualizar jugador y arma
     player.update()
-    bow.update(player)
+    arrow = bow.update(player)
+    if arrow:
+        arrow_group.add(arrow)
+
 
     #dibujar jugador y arma
     player.draw(screen)
     bow.draw(screen)
-    print(str(dx),str(dy))
+    for arrow in arrow_group:
+        arrow.draw(screen)
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
