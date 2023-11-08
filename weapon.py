@@ -54,6 +54,10 @@ class Arrow(pygame.sprite.Sprite):
     
     
     def update(self, enemy_list):
+        #resetea el daño
+        damage = 0
+        damage_pos = None
+        
         #cambiar posicion de la flecha segun los diferenciales
         self.rect.x += self.dx
         self.rect.y += self.dy
@@ -64,11 +68,14 @@ class Arrow(pygame.sprite.Sprite):
 
         #verificamos colision entre flechas y enemigos
         for enemy in enemy_list:
-            if enemy.rect.colliderect(self.rect):
+            if enemy.rect.colliderect(self.rect) and enemy.alive:
                 damage = 10 + random.randint(-5,5)
+                damage_pos = enemy.rect
                 enemy.health -= damage
                 self.kill()
                 break
+        
+        return damage,damage_pos
 
 
 

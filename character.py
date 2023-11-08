@@ -14,6 +14,8 @@ class Character():
         self.update_time = pygame.time.get_ticks()
         self.running = False
         self.health = health 
+        self.alive = True
+
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = pygame.Rect(0,0,40,40)
         self.rect.center = (x,y)
@@ -36,6 +38,10 @@ class Character():
         self.rect.y += dy
 
     def update(self):
+        if self.health <= 0:
+            self.health = 0
+            self.alive = False
+
 
         #check que tipo de accion hace el jugador
         if self.running == True:
