@@ -1,6 +1,7 @@
 import pygame
 import settings 
-from player import Player
+from character import Character
+from weapon import Weapon
 
 pygame.init()
 
@@ -20,19 +21,30 @@ def scale_img(image,scale):
     h = image.get_height()
     return pygame.transform.scale(image,(w*scale,h*scale))
 
+
+#carga de las imagenes del arco
+bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
+
+#carga de sprites
+mob_animations = []
+mob_types = ["elf","imp","skeleton","goblin","muddy","tiny_zombie","big_demon"]
 animation_types = ["idle","run"]
-animation_list = []
-for animation in animation_types:
-    temp_list = []
-    for i in range(4):
-        image = pygame.image.load(f"assets/images/characters/elf/{animation}/{i}.png").convert_alpha()
-        image = scale_img(image,settings.SCALE)
-        temp_list.append(image)
-    animation_list.append(temp_list)
+for mob in mob_types:
+    animation_list = []
+    for animation in animation_types:
+        temp_list = []
+        for i in range(4):
+            image = pygame.image.load(f"assets/images/characters/{mob}/{animation}/{i}.png").convert_alpha()
+            image = scale_img(image,settings.SCALE)
+            temp_list.append(image)
+        animation_list.append(temp_list)
+    mob_animations.append(animation_list)
 
 print(animation_list)
 #creando jugador
-player = Player(100,100,animation_list)
+player = Character(100,100,mob_animations,0)
+#dibujando arma
+bow = Weapon(bow_image)
 
 
 
@@ -52,9 +64,16 @@ while run:
     if moving_down == True:
         dy += settings.SPEED
 
+    #actualizar movimiento
     player.move(dx, dy)
+
+    #actualizar jugador y arma
     player.update()
+    bow.update(player)
+
+    #dibujar jugador y arma
     player.draw(screen)
+    bow.draw(screen)
     print(str(dx),str(dy))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

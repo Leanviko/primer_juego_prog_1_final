@@ -4,15 +4,16 @@ import math
 
 
 
-class Player():
-    def __init__(self, x, y, animation_list):
+class Character():
+    def __init__(self, x, y, mob_animations,char_type):
+        self.char_type = char_type
         self.flip = False
-        self.animation_list = animation_list
+        self.animation_list = mob_animations[self.char_type]
         self.frame_index = 0
         self.action = 0 # 0: parado, 1:correr
         self.update_time = pygame.time.get_ticks()
         self.running = False
-        self.image = animation_list[self.action][self.frame_index]
+        self.image = self.animation_list[self.action][self.frame_index]
         self.rect = pygame.Rect(0,0,40,40)
         self.rect.center = (x,y)
     
@@ -64,5 +65,8 @@ class Player():
 
     def draw(self, surface):
         flipped_image = pygame.transform.flip(self.image, self.flip, False)
-        surface.blit(flipped_image,self.rect)
+        if self.char_type == 0:
+            surface.blit(flipped_image,(self.rect.x,self.rect.y-settings.OFFSET*settings.SCALE))
+        else:
+            surface.blit(flipped_image,self.rect)
         pygame.draw.rect(surface, settings.RED, self.rect, 1)
