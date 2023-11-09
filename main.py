@@ -2,6 +2,7 @@ import pygame
 import settings 
 from character import Character
 from weapon import Weapon
+from items import Item
 
 pygame.init()
 
@@ -25,12 +26,21 @@ def scale_img(image,scale):
     h = image.get_height()
     return pygame.transform.scale(image,(w*scale,h*scale))
 
-#cargar imagenes salud
+#imagenes salud
 heart_empty = scale_img(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(),settings.ITEM_SCALE)
 heart_full = scale_img(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),settings.ITEM_SCALE)
 heart_half = scale_img(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(),settings.ITEM_SCALE)
 
-#carga de las imagenes del arco
+#imagenes de monedas
+coin_images = []
+for x in range(4):
+    coin_img = scale_img(pygame.image.load(f"assets/images/items/coin_f{x}.png").convert_alpha(), settings.POTION_SCALE)
+    coin_images.append(coin_img)
+
+#imagen pocion
+red_potion = scale_img(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(),settings.ITEM_SCALE)
+
+#imagenes del arco y flecha
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
 arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(),settings.WEAPON_SCALE)
 
@@ -51,6 +61,11 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
 
+#funcion para texto
+def draw_text(text, font, text_color, x, y):
+    img = font.render(text, True, text_color)
+    screen.blit(img, (x, y))
+
 #funcion para desplegar informacion en pantalla
 def draw_info():
     #panel
@@ -66,6 +81,10 @@ def draw_info():
             half_heart_drawn = True
         else:
             screen.blit(heart_empty,(10 + i * 50, 0))
+        
+        #mostrar puntaje
+        draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
+
 
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
@@ -94,7 +113,15 @@ bow = Weapon(bow_image, arrow_image)
 #crear grupo de sprites para las flechas y el texto de daño
 damage_text_group = pygame.sprite.Group()
 arrow_group = pygame.sprite.Group()
+item_group = pygame.sprite.Group()
 
+score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images)
+item_group.add(score_coin)
+
+coin = Item(400, 400, 0, coin_images)
+item_group.add(coin)
+potion = Item(200, 200, 1, [red_potion])
+item_group.add(potion)
 
 
 #lista de enemigos
@@ -126,7 +153,7 @@ while run:
     #actualizar enemigo
     for enemy in enemy_list:
         enemy.update()
-        print(enemy.health)
+    
     #actualizar jugador
     player.update()
     #actualiza flecha
@@ -141,6 +168,7 @@ while run:
             damage_text_group.add(damage_text)
     
     damage_text_group.update()
+    item_group.update(player)
 
 
     #dibujar jugador y arma
@@ -151,8 +179,9 @@ while run:
     for arrow in arrow_group:
         arrow.draw(screen)
     damage_text_group.draw(screen)
+    item_group.draw(screen)
     draw_info()
-
+    score_coin.draw(screen)
 
     #? eventos--------------------------------------------
 

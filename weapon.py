@@ -28,7 +28,7 @@ class Weapon():
         if pygame.mouse.get_pressed()[0] and self.fired == False and (pygame.time.get_ticks()-self.last_shot > shoot_cooldown):
             arrow = Arrow(self.arrow_image,self.rect.centerx,self.rect.centery,self.angle)
             self.fired = True
-            self.last_shot = pygame.time.get_ticks()
+            #self.last_shot = pygame.time.get_ticks()
 
         if (pygame.time.get_ticks()-self.last_shot > shoot_cooldown) or (pygame.mouse.get_pressed()[0]==False):
             self.fired = False

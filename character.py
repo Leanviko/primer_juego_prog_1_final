@@ -7,6 +7,7 @@ import math
 class Character():
     def __init__(self, x, y, health, mob_animations,char_type):
         self.char_type = char_type
+        self.score = 0
         self.flip = False
         self.animation_list = mob_animations[self.char_type]
         self.frame_index = 0
@@ -54,13 +55,13 @@ class Character():
 
         #actualiza la imagen
         self.image = self.animation_list[self.action][self.frame_index]
-        #check del tiempo desdes la ultima actualizacion
+        #chequear el tiempo desde la ultima actualizacion
         if pygame.time.get_ticks() - self.update_time > animation_cooldown:
             self.frame_index += 1
             self.update_time = pygame.time.get_ticks()
         #reset de los frames
         if self.frame_index >= len(self.animation_list[self.action]):
-                self.frame_index = 0
+            self.frame_index = 0
     
     def update_action(self, new_action):
         #chekea si la nueva accion es diferente que al anterior
