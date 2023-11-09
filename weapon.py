@@ -28,7 +28,8 @@ class Weapon():
         if pygame.mouse.get_pressed()[0] and self.fired == False and (pygame.time.get_ticks()- self.last_shot > shoot_cooldown):
             arrow = Arrow(self.arrow_image,self.rect.centerx,self.rect.centery,self.angle)
             self.fired = True
-        if (pygame.time.get_ticks()- self.last_shot > shoot_cooldown):
+            
+        if (pygame.time.get_ticks()- self.last_shot > shoot_cooldown or pygame.mouse.get_pressed()[0]==False):
             self.fired = False
             self.last_shot = pygame.time.get_ticks()
         return arrow
@@ -57,7 +58,7 @@ class Arrow(pygame.sprite.Sprite):
         #resetea el daño
         damage = 0
         damage_pos = None
-        
+
         #cambiar posicion de la flecha segun los diferenciales
         self.rect.x += self.dx
         self.rect.y += self.dy
