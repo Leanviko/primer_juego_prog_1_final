@@ -25,11 +25,12 @@ class Weapon():
         self.angle = math.degrees(math.atan2(y_dist, x_dist))
 
         #Cuando recibe la orden de disparar crea una flecha
-        if pygame.mouse.get_pressed()[0] and self.fired == False and (pygame.time.get_ticks()- self.last_shot > shoot_cooldown):
+        if pygame.mouse.get_pressed()[0] and self.fired == False and (pygame.time.get_ticks()-self.last_shot > shoot_cooldown):
             arrow = Arrow(self.arrow_image,self.rect.centerx,self.rect.centery,self.angle)
             self.fired = True
-            
-        if (pygame.time.get_ticks()- self.last_shot > shoot_cooldown or pygame.mouse.get_pressed()[0]==False):
+            self.last_shot = pygame.time.get_ticks()
+
+        if (pygame.time.get_ticks()-self.last_shot > shoot_cooldown) or (pygame.mouse.get_pressed()[0]==False):
             self.fired = False
             self.last_shot = pygame.time.get_ticks()
         return arrow

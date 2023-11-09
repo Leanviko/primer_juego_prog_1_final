@@ -28,6 +28,7 @@ def scale_img(image,scale):
 #cargar imagenes salud
 heart_empty = scale_img(pygame.image.load("assets/images/items/heart_empty.png").convert_alpha(),settings.ITEM_SCALE)
 heart_full = scale_img(pygame.image.load("assets/images/items/heart_full.png").convert_alpha(),settings.ITEM_SCALE)
+heart_half = scale_img(pygame.image.load("assets/images/items/heart_half.png").convert_alpha(),settings.ITEM_SCALE)
 
 #carga de las imagenes del arco
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
@@ -52,10 +53,20 @@ for mob in mob_types:
 
 #funcion para desplegar informacion en pantalla
 def draw_info():
+    #panel
+    pygame.draw.rect(screen, settings.PANEL, (0, 0, settings.WIDTH, 50))
+    pygame.draw.line(screen, settings.WHITE, (0, 50), (settings.WIDTH, 50))
     #dibujar corazones
+    half_heart_drawn = False
     for i in range(5):
-        if player.health >= ((i+1)*20): # cada corazon son 20 puntos
-            screen.blit(heart_full,(10 + i * 50, 0))
+        if player.health >= ((i+1)*20): # salud = [20,40,60,80,100]
+            screen.blit(heart_full,(10 + i * 50, 0))# separaciones = [10,60,110,160,210]
+        elif player.health%20 > 0 and half_heart_drawn == False:
+            screen.blit(heart_half,(10 + i * 50, 0))
+            half_heart_drawn = True
+        else:
+            screen.blit(heart_empty,(10 + i * 50, 0))
+
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
     def __init__(self,x,y,damage,color):
@@ -75,8 +86,8 @@ class DamageText(pygame.sprite.Sprite):
 
 
 #creacion jugador y enemigos
-player = Character(100, 100, 100,mob_animations,0)
-enemy = Character(100, 300, 100,mob_animations,1)
+player = Character(100, 100, 50, mob_animations, 0)
+enemy = Character(100, 300, 100, mob_animations, 1)
 
 #dibujando arma
 bow = Weapon(bow_image, arrow_image)
