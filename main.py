@@ -3,6 +3,7 @@ import settings
 from character import Character
 from weapon import Weapon
 from items import Item
+from world import World
 
 pygame.init()
 
@@ -34,17 +35,25 @@ heart_half = scale_img(pygame.image.load("assets/images/items/heart_half.png").c
 #imagenes de monedas
 coin_images = []
 for x in range(4):
-    coin_img = scale_img(pygame.image.load(f"assets/images/items/coin_f{x}.png").convert_alpha(), settings.POTION_SCALE)
+    coin_img = scale_img(pygame.image.load(f"assets/images/items/coin_f{x}.png").convert_alpha(), settings.ITEM_SCALE)
     coin_images.append(coin_img)
 
 #imagen pocion
-red_potion = scale_img(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(),settings.ITEM_SCALE)
+red_potion = scale_img(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(),settings.POTION_SCALE)
 
 #imagenes del arco y flecha
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
 arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(),settings.WEAPON_SCALE)
 
-#carga de sprites
+#caga imagenes de "baldosas"
+tile_list = []
+for x in range(settings.TILE_TYPES):
+    tile_image = pygame.image.load(f"assets/images/tiles/{x}.png").convert_alpha()
+    tile_image = pygame.transform.scale(tile_image, (settings.TILE_SIZE, settings.TILE_SIZE))
+    tile_list.append(tile_image)
+
+
+#carga de sprites de los personajes
 mob_animations = []
 mob_types = ["elf","imp","skeleton","goblin","muddy","tiny_zombie","big_demon"]
 
@@ -66,6 +75,18 @@ def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
 
+world_data = [
+    [7, 7, 7, 7, 7],
+    [7, 0, 1, 2, 7],
+    [7, 3, 4, 5, 7],
+    [7, 6, 6, 6, 7],
+    [7, 7, 7, 7, 7]
+    ]
+
+world = World()
+world.process_data(world_data, tile_list)
+print(world.map_tiles)
+
 #funcion para desplegar informacion en pantalla
 def draw_info():
     #panel
@@ -85,6 +106,14 @@ def draw_info():
         #mostrar puntaje
         draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
 
+
+def draw_grid():
+    for i in range(30):
+        tile_size = settings.TILE_SIZE
+        #lineas verticales
+        pygame.draw.line(screen, settings.WHITE, (i*tile_size, 0), (i * tile_size, settings.HEIGHT))
+        #horizontales
+        pygame.draw.line(screen, settings.WHITE, (0, i*tile_size), (settings.WIDTH, i*tile_size))
 
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
@@ -134,6 +163,7 @@ run = True
 while run:
     clock.tick(settings.FPS)
     screen.fill(settings.BG)
+    draw_grid()
 
     dx=0
     dy=0
@@ -146,10 +176,10 @@ while run:
     if moving_down == True:
         dy += settings.SPEED
 
+    #? ----- actualizaciones
     #actualizar movimiento jugador
     player.move(dx, dy)
 
-    
     #actualizar enemigo
     for enemy in enemy_list:
         enemy.update()
@@ -170,6 +200,9 @@ while run:
     damage_text_group.update()
     item_group.update(player)
 
+    #? ----- dibujados
+    #dibujo escenario
+    world.draw(screen)
 
     #dibujar jugador y arma
     for enemy in enemy_list:
