@@ -19,6 +19,15 @@ class World():
                 #agregamos la data del "mosaico" el la lista principal
                 if tile >=0:
                     self.map_tiles.append(tile_data)
+    
+    def update(self, screen_scroll):
+        #reposisionamos las baldosas con el scroll del movimiento
+        #el escenario se mueve alrededor del jugador
+        # => tile: tile_data
+        for tile in self.map_tiles:
+            tile[2] += screen_scroll[0]
+            tile[3] += screen_scroll[1]
+            tile[1].center = (tile[2], tile[3])
 
     def draw(self, surface):
         #iteramos en cada tile_data dentro del principal

@@ -1,4 +1,5 @@
 import pygame
+import csv
 import settings 
 from character import Character
 from weapon import Weapon
@@ -10,7 +11,12 @@ pygame.init()
 
 screen = pygame.display.set_mode((settings.WIDTH,settings.HEIGHT))
 pygame.display.set_caption('Jueguito')
+
 clock =  pygame.time.Clock()
+
+#definimos variables del juego
+level = 1
+screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
 moving_right = False
@@ -75,13 +81,21 @@ def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
 
-world_data = [
-    [7, 7, 7, 7, 7],
-    [7, 0, 1, 2, 7],
-    [7, 3, 4, 5, 7],
-    [7, 6, 6, 6, 7],
-    [7, 7, 7, 7, 7]
-    ]
+#creando lista vacia de imagenes del nivel
+world_data = []
+for row in range(settings.ROWS):
+    r = [-1] * settings.COLS
+    world_data.append(r) # lleno primero con -1 para asignar un espacio vacio
+
+#abrimos el archivo csv
+with open("levels/level1_data.csv", newline="") as csvfile:
+    reader = csv.reader(csvfile, delimiter = ",")
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)#se pasan a entero el valor   
+
+
+print(world_data)
 
 world = World()
 world.process_data(world_data, tile_list)
@@ -107,14 +121,6 @@ def draw_info():
         draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
 
 
-def draw_grid():
-    for i in range(30):
-        tile_size = settings.TILE_SIZE
-        #lineas verticales
-        pygame.draw.line(screen, settings.WHITE, (i*tile_size, 0), (i * tile_size, settings.HEIGHT))
-        #horizontales
-        pygame.draw.line(screen, settings.WHITE, (0, i*tile_size), (settings.WIDTH, i*tile_size))
-
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
     def __init__(self,x,y,damage,color):
@@ -134,7 +140,7 @@ class DamageText(pygame.sprite.Sprite):
 
 
 #creacion jugador y enemigos
-player = Character(100, 100, 50, mob_animations, 0)
+player = Character(400, 300, 50, mob_animations, 0)
 enemy = Character(100, 300, 100, mob_animations, 1)
 
 #dibujando arma
@@ -163,7 +169,6 @@ run = True
 while run:
     clock.tick(settings.FPS)
     screen.fill(settings.BG)
-    draw_grid()
 
     dx=0
     dy=0
@@ -178,17 +183,19 @@ while run:
 
     #? ----- actualizaciones
     #actualizar movimiento jugador
-    player.move(dx, dy)
+    screen_scroll = player.move(dx, dy)
+    print(screen_scroll)
+    
+    #actualizar todos los objetos
+    world.update(screen_scroll)
 
     #actualizar enemigo
     for enemy in enemy_list:
         enemy.update()
-    
     #actualizar jugador
     player.update()
     #actualiza flecha
     arrow = bow.update(player)
-    
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:

@@ -22,6 +22,9 @@ class Character():
         self.rect.center = (x, y)
     
     def move(self,dx,dy):
+
+        screen_scroll = [0, 0]
+
         self.running = False
         if dx != 0 or dy != 0:
             self.running = True
@@ -34,9 +37,33 @@ class Character():
         if dx != 0 and dy != 0:
             dx = dx*(math.sqrt(2)/2)
             dy = dy*(math.sqrt(2)/2)
-
+        
         self.rect.x += dx
         self.rect.y += dy
+
+        #logica aplicada solo al jugador
+        if self.char_type == 0:
+            #actualizar scroll en base a la posicion del jugador
+            #mover la camara izq y der. Se moverá antes de llegar al borde 
+            if self.rect.right > (settings.WIDTH - settings.SCROLL_THRESHOLD):
+                screen_scroll[0] = (settings.WIDTH - settings.SCROLL_THRESHOLD) - self.rect.right
+                self.rect.right = settings.WIDTH - settings.SCROLL_THRESHOLD
+            if self.rect.left < settings.SCROLL_THRESHOLD:
+                screen_scroll[0] = settings.SCROLL_THRESHOLD - self.rect.left
+                self.rect.left = settings.SCROLL_THRESHOLD
+            
+            #lo mismo para la camara arriba y abajo.
+            if self.rect.bottom > (settings.HEIGHT - settings.SCROLL_THRESHOLD):
+                screen_scroll[1] = (settings.HEIGHT - settings.SCROLL_THRESHOLD) - self.rect.bottom
+                self.rect.bottom = settings.HEIGHT - settings.SCROLL_THRESHOLD
+            if self.rect.top < settings.SCROLL_THRESHOLD:
+                screen_scroll[1] = settings.SCROLL_THRESHOLD - self.rect.top
+                self.rect.top = settings.SCROLL_THRESHOLD
+
+
+        return screen_scroll
+
+        
 
     def update(self):
         if self.health <= 0:
