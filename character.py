@@ -22,7 +22,7 @@ class Character():
         self.rect = pygame.Rect(0,0, settings.TILE_SIZE * size,settings.TILE_SIZE * size)
         self.rect.center = (x, y)
     
-    def move(self,dx,dy):
+    def move(self,dx,dy, obstacle_tiles):
 
         screen_scroll = [0, 0]
 
@@ -39,8 +39,25 @@ class Character():
             dx = dx*(math.sqrt(2)/2)
             dy = dy*(math.sqrt(2)/2)
         
+        #colisiones con el entorno-----------
         self.rect.x += dx
+        for obstacle in obstacle_tiles:
+            #chequear colision
+            if obstacle[1].colliderect(self.rect):
+                #chequea de que lado ocurre la colision
+                if dx > 0:
+                    self.rect.right = obstacle[1].left
+                if dx < 0:
+                    self.rect.left = obstacle[1].right
         self.rect.y += dy
+        for obstacle in obstacle_tiles:
+            #chequear colision
+            if obstacle[1].colliderect(self.rect):
+                #chequea de que lado ocurre la colision
+                if dy > 0:
+                    self.rect.bottom = obstacle[1].top
+                if dy < 0:
+                    self.rect.top = obstacle[1].bottom
 
         #logica aplicada solo al jugador
         if self.char_type == 0:

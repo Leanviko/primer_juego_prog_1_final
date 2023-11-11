@@ -187,7 +187,7 @@ while run:
 
     #? ----- actualizaciones
     #actualizar movimiento jugador
-    screen_scroll = player.move(dx, dy)
+    screen_scroll = player.move(dx, dy, world.obstacle_tiles)
     print(screen_scroll)
     
     #actualizar todos los objetos
