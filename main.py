@@ -47,6 +47,10 @@ for x in range(4):
 #imagen pocion
 red_potion = scale_img(pygame.image.load("assets/images/items/potion_red.png").convert_alpha(),settings.POTION_SCALE)
 
+item_images = []
+item_images.append(coin_images)
+item_images.append(red_potion)
+
 #imagenes del arco y flecha
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
 arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(),settings.WEAPON_SCALE)
@@ -76,6 +80,8 @@ for mob in mob_types:
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
 
+
+
 #funcion para texto
 def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
@@ -95,10 +101,8 @@ with open("levels/level1_data.csv", newline="") as csvfile:
             world_data[x][y] = int(tile)#se pasan a entero el valor   
 
 
-print(world_data)
-
 world = World()
-world.process_data(world_data, tile_list)
+world.process_data(world_data, tile_list, item_images, mob_animations)
 print(world.map_tiles)
 
 #funcion para desplegar informacion en pantalla
@@ -117,8 +121,11 @@ def draw_info():
         else:
             screen.blit(heart_empty,(10 + i * 50, 0))
         
-        #mostrar puntaje
-        draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
+    #mostra nivel
+    draw_text(f"LEVEL: "+ str(level), font, settings.WHITE, settings.WIDTH/2, 15)
+
+    #mostrar puntaje
+    draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
 
 
 #clase de texto del daño
@@ -131,6 +138,9 @@ class DamageText(pygame.sprite.Sprite):
         self.counter = 0
     
     def update(self):
+        #reposicionamos el texto
+        self.rect.x += screen_scroll[0]
+        self.rect.y += screen_scroll[1]
         # mover el textoo hacia arriba para darle un aspecto copadisimo
         self.rect.y -= 1
         #borra el texto despues de un tiempo
@@ -140,8 +150,8 @@ class DamageText(pygame.sprite.Sprite):
 
 
 #creacion jugador y enemigos
-player = Character(400, 300, 50, mob_animations, 0)
-enemy = Character(100, 300, 100, mob_animations, 1)
+player = world.player
+enemy = Character(300, 300, 100, mob_animations, 1)
 
 #dibujando arma
 bow = Weapon(bow_image, arrow_image)
@@ -150,13 +160,13 @@ damage_text_group = pygame.sprite.Group()
 arrow_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
 
-score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images)
+score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images, True)
 item_group.add(score_coin)
 
-coin = Item(400, 400, 0, coin_images)
-item_group.add(coin)
-potion = Item(200, 200, 1, [red_potion])
-item_group.add(potion)
+#agrega los item de los datos de nivel
+for item in world.item_list:
+    item_group.add(item) 
+
 
 
 #lista de enemigos
@@ -191,6 +201,7 @@ while run:
 
     #actualizar enemigo
     for enemy in enemy_list:
+        enemy.ai(screen_scroll)
         enemy.update()
     #actualizar jugador
     player.update()
@@ -199,13 +210,13 @@ while run:
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(enemy_list) #retorna 2 valores
+        damage, damage_pos = arrow.update(screen_scroll, enemy_list) #retorna 2 valores
         if damage:
             damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),settings.RED)
             damage_text_group.add(damage_text)
     
     damage_text_group.update()
-    item_group.update(player)
+    item_group.update(screen_scroll, player)
 
     #? ----- dibujados
     #dibujo escenario

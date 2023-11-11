@@ -55,14 +55,15 @@ class Arrow(pygame.sprite.Sprite):
         self.dy = math.sin(math.radians(self.angle))*settings.SPEED_ARROW*-1
     
     
-    def update(self, enemy_list):
+    def update(self,screen_scroll, enemy_list):
+
         #resetea el daño
         damage = 0
         damage_pos = None
 
         #cambiar posicion de la flecha segun los diferenciales
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+        self.rect.x += screen_scroll[0] + self.dx
+        self.rect.y += screen_scroll[1] + self.dy
 
         #borrar las flechas que salgan de la pantalla
         if self.rect.right < 0 or self.rect.left > settings.WIDTH or self.rect.top < 0 or self.rect.bottom > settings.HEIGHT:

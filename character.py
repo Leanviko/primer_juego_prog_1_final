@@ -60,11 +60,13 @@ class Character():
                 screen_scroll[1] = settings.SCROLL_THRESHOLD - self.rect.top
                 self.rect.top = settings.SCROLL_THRESHOLD
 
-
         return screen_scroll
 
+    #funcion logica solo aplicada a los enemigos
+    def ai(self,screen_scroll):
+        self.rect.x += screen_scroll[0]
+        self.rect.y += screen_scroll[1]
         
-
     def update(self):
         if self.health <= 0:
             self.health = 0
