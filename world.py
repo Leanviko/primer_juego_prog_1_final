@@ -39,13 +39,18 @@ class World():
                     self.item_list.append(potion)
                     tile_data[0] = tile_list[0]    
                 elif tile == 11:
-                    player = Character(image_x, image_y, 60, mob_animations, 0)
+                    player = Character(image_x, image_y, 60, mob_animations, 0, False, 1)
                     self.player = player
                     tile_data[0] = tile_list[0]
-                elif tile >= 12 and tile <=17:
-                    enemy = Character(image_x, image_y, 30, mob_animations, tile - 11)
+                elif tile >= 12 and tile <=16:
+                    enemy = Character(image_x, image_y, 30, mob_animations, tile - 11, False, 1)
                     self.character_list.append(enemy)
-                    tile_data[0] = tile_list[0]    
+                    tile_data[0] = tile_list[0]
+                elif tile == 17:
+                    enemy = Character(image_x, image_y, 3000, mob_animations, 6, True, 2)
+                    self.character_list.append(enemy)
+                    tile_data[0] = tile_list[0]  
+                
                 #agregamos la data del "mosaico" el la lista principal
                 if tile >=0:
                     self.map_tiles.append(tile_data)

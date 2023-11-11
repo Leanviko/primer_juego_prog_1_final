@@ -15,7 +15,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 2
+level = 3
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador

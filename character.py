@@ -5,8 +5,9 @@ import math
 
 
 class Character():
-    def __init__(self, x, y, health, mob_animations,char_type):
+    def __init__(self, x, y, health, mob_animations, char_type, boss, size):
         self.char_type = char_type
+        self.boss = boss
         self.score = 0
         self.flip = False
         self.animation_list = mob_animations[self.char_type]
@@ -18,7 +19,7 @@ class Character():
         self.alive = True
 
         self.image = self.animation_list[self.action][self.frame_index]
-        self.rect = pygame.Rect(0,0, settings.TILE_SIZE,settings.TILE_SIZE)
+        self.rect = pygame.Rect(0,0, settings.TILE_SIZE * size,settings.TILE_SIZE * size)
         self.rect.center = (x, y)
     
     def move(self,dx,dy):
@@ -66,7 +67,7 @@ class Character():
     def ai(self,screen_scroll):
         self.rect.x += screen_scroll[0]
         self.rect.y += screen_scroll[1]
-        
+
     def update(self):
         if self.health <= 0:
             self.health = 0
