@@ -15,7 +15,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 1
+level = 2
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
@@ -94,7 +94,7 @@ for row in range(settings.ROWS):
     world_data.append(r) # lleno primero con -1 para asignar un espacio vacio
 
 #abrimos el archivo csv
-with open("levels/level1_data.csv", newline="") as csvfile:
+with open(f"levels/level{level}_data.csv", newline="") as csvfile:
     reader = csv.reader(csvfile, delimiter = ",")
     for x, row in enumerate(reader):
         for y, tile in enumerate(row):
@@ -151,7 +151,7 @@ class DamageText(pygame.sprite.Sprite):
 
 #creacion jugador y enemigos
 player = world.player
-enemy = Character(300, 300, 100, mob_animations, 1)
+enemy_list = world.character_list
 
 #dibujando arma
 bow = Weapon(bow_image, arrow_image)
@@ -168,13 +168,7 @@ for item in world.item_list:
     item_group.add(item) 
 
 
-
-#lista de enemigos
-enemy_list = []
-enemy_list.append(enemy)
-
-#*Main loop------------------------------------------
-
+#*Main loop-----------------------------------------
 run = True
 while run:
     clock.tick(settings.FPS)
