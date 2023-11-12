@@ -55,7 +55,7 @@ class Arrow(pygame.sprite.Sprite):
         self.dy = math.sin(math.radians(self.angle))*settings.SPEED_ARROW*-1
     
     
-    def update(self,screen_scroll, enemy_list):
+    def update(self,screen_scroll, obstacle_tiles, enemy_list):
 
         #resetea el daño
         damage = 0
@@ -64,6 +64,11 @@ class Arrow(pygame.sprite.Sprite):
         #cambiar posicion de la flecha segun los diferenciales
         self.rect.x += screen_scroll[0] + self.dx
         self.rect.y += screen_scroll[1] + self.dy
+
+        #chequeamos si hay colisiones entre las flechas y los muros
+        for obstacle in obstacle_tiles:
+            if obstacle[1].colliderect(self.rect):
+                self.kill()
 
         #borrar las flechas que salgan de la pantalla
         if self.rect.right < 0 or self.rect.left > settings.WIDTH or self.rect.top < 0 or self.rect.bottom > settings.HEIGHT:
@@ -75,6 +80,7 @@ class Arrow(pygame.sprite.Sprite):
                 damage = 10 + random.randint(-5,5)
                 damage_pos = enemy.rect
                 enemy.health -= damage
+                enemy.hit = True
                 self.kill()
                 break
         

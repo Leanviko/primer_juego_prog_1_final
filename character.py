@@ -18,6 +18,10 @@ class Character():
         self.health = health 
         self.alive = True
 
+        self.hit = False
+        self.last_hit = pygame.time.get_ticks()
+        self.stunned = False
+
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = pygame.Rect(0,0, settings.TILE_SIZE * size,settings.TILE_SIZE * size)
         self.rect.center = (x, y)
@@ -81,14 +85,75 @@ class Character():
         return screen_scroll
 
     #funcion logica solo aplicada a los enemigos
-    def ai(self,screen_scroll):
+    def ai(self, player, obstacle_tiles, screen_scroll):
+        clipped_line = ()
+        stun_cooldown = 100
+        ai_dx = 0
+        ai_dy = 0
+
+        #reposicion de los modelos en base al scroll de pantalla
         self.rect.x += screen_scroll[0]
         self.rect.y += screen_scroll[1]
+
+        #linea de vision del enemigo al jugador
+        init = (self.rect.centerx, self.rect.centery)
+        end = (player.rect.centerx, player.rect.centery)
+        line_of_sight = (init, end)
+
+        #chequeamos si la linea de vision obstaculiza con algo
+        for obstacle in obstacle_tiles:
+            if obstacle[1].clipline(line_of_sight):
+                #clipped_line captura la recta entre el enemigo el el obst.
+                clipped_line = obstacle[1].clipline(line_of_sight)
+        
+        
+
+        #chequeamos las distancia con el jugador con pitagoras
+        dist= math.sqrt(((self.rect.centerx - player.rect.centerx)**2)+((self.rect.centery - player.rect.centery)**2))
+        
+        
+        if not clipped_line and dist > settings.RANGE:
+            if self.rect.centerx > player.rect.centerx:
+                ai_dx = -settings.ENEMY_SPEED
+            if self.rect.centerx < player.rect.centerx:
+                ai_dx = settings.ENEMY_SPEED
+            if self.rect.centery > player.rect.centery:
+                ai_dy = -settings.ENEMY_SPEED
+            if self.rect.centery < player.rect.centery:
+                ai_dy = settings.ENEMY_SPEED
+
+        if self.alive:
+            #ataque al jugador
+            if self.stunned == False:
+                #se moverá hacia el jugador
+                self.move(ai_dx, ai_dy, obstacle_tiles) 
+                #atacará al jugador
+                if dist < settings.ATTACK_RANGE and player.hit == False:
+                    player.health -= 10
+                    player.hit = True
+                    player.last_hit = pygame.time.get_ticks()
+
+            #chuequeamos si impactó una flecha
+            if self.hit == True:
+                self.hit = False
+                self.last_hit = pygame.time.get_ticks()
+                self.stunned = True
+                self.running = False
+                self.update_action(0) #se quede quieto
+
+            #momento entre impacto y que vuelve a moverse
+            if(pygame.time.get_ticks() - self.last_hit > stun_cooldown):
+                self.stunned = False
 
     def update(self):
         if self.health <= 0:
             self.health = 0
             self.alive = False
+
+        hit_cooldown = 1000
+        if self.char_type == 0:
+            if self.hit == True and (pygame.time.get_ticks() - self.last_hit) > hit_cooldown:
+                self.hit = False
 
 
         #check que tipo de accion hace el jugador

@@ -15,7 +15,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 3
+level = 1
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
@@ -103,7 +103,7 @@ with open(f"levels/level{level}_data.csv", newline="") as csvfile:
 
 world = World()
 world.process_data(world_data, tile_list, item_images, mob_animations)
-print(world.map_tiles)
+#print(world.map_tiles)
 
 #funcion para desplegar informacion en pantalla
 def draw_info():
@@ -167,7 +167,6 @@ item_group.add(score_coin)
 for item in world.item_list:
     item_group.add(item) 
 
-
 #*Main loop-----------------------------------------
 run = True
 while run:
@@ -188,14 +187,13 @@ while run:
     #? ----- actualizaciones
     #actualizar movimiento jugador
     screen_scroll = player.move(dx, dy, world.obstacle_tiles)
-    print(screen_scroll)
     
     #actualizar todos los objetos
     world.update(screen_scroll)
 
     #actualizar enemigo
     for enemy in enemy_list:
-        enemy.ai(screen_scroll)
+        enemy.ai(player, world.obstacle_tiles, screen_scroll)
         enemy.update()
     #actualizar jugador
     player.update()
@@ -204,7 +202,7 @@ while run:
     if arrow:
         arrow_group.add(arrow)
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(screen_scroll, enemy_list) #retorna 2 valores
+        damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list) #retorna 2 valores
         if damage:
             damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),settings.RED)
             damage_text_group.add(damage_text)
