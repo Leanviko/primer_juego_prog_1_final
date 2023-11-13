@@ -1,6 +1,7 @@
 import pygame
 import settings
 import math
+import weapon
 
 
 
@@ -21,6 +22,9 @@ class Character():
         self.hit = False
         self.last_hit = pygame.time.get_ticks()
         self.stunned = False
+
+        #boos
+        self.last_attack = pygame.time.get_ticks()
 
         self.image = self.animation_list[self.action][self.frame_index]
         self.rect = pygame.Rect(0,0, settings.TILE_SIZE * size,settings.TILE_SIZE * size)
@@ -85,11 +89,12 @@ class Character():
         return screen_scroll
 
     #funcion logica solo aplicada a los enemigos
-    def ai(self, player, obstacle_tiles, screen_scroll):
+    def ai(self, player, obstacle_tiles, screen_scroll, fireball_image):
         clipped_line = ()
         stun_cooldown = 100
         ai_dx = 0
         ai_dy = 0
+        fireball = None
 
         #reposicion de los modelos en base al scroll de pantalla
         self.rect.x += screen_scroll[0]
@@ -106,8 +111,6 @@ class Character():
                 #clipped_line captura la recta entre el enemigo el el obst.
                 clipped_line = obstacle[1].clipline(line_of_sight)
         
-        
-
         #chequeamos las distancia con el jugador con pitagoras
         dist= math.sqrt(((self.rect.centerx - player.rect.centerx)**2)+((self.rect.centery - player.rect.centery)**2))
         
@@ -132,6 +135,13 @@ class Character():
                     player.health -= 10
                     player.hit = True
                     player.last_hit = pygame.time.get_ticks()
+                #los jefes disparan bolas de fuego
+                fireball_cooldown = 700
+                if self.boss:
+                    if dist < 500:
+                        if pygame.time.get_ticks() - self.last_attack >= fireball_cooldown:
+                            fireball = weapon.Fireball(fireball_image,self.rect.centerx, self.rect.centery, player.rect.centerx, player.rect.centery)
+                            self.last_attack = pygame.time.get_ticks()
 
             #chuequeamos si impactó una flecha
             if self.hit == True:
@@ -144,6 +154,7 @@ class Character():
             #momento entre impacto y que vuelve a moverse
             if(pygame.time.get_ticks() - self.last_hit > stun_cooldown):
                 self.stunned = False
+        return fireball
 
     def update(self):
         if self.health <= 0:
@@ -189,4 +200,4 @@ class Character():
             surface.blit(flipped_image,(self.rect.x,self.rect.y-settings.OFFSET*settings.SCALE))
         else:
             surface.blit(flipped_image,self.rect)
-        pygame.draw.rect(surface, settings.RED, self.rect, 1)
+        

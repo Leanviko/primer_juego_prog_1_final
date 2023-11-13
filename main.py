@@ -15,7 +15,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 1
+level = 3
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
@@ -54,6 +54,7 @@ item_images.append(red_potion)
 #imagenes del arco y flecha
 bow_image = scale_img(pygame.image.load("assets/images/weapons/bow.png").convert_alpha(),settings.WEAPON_SCALE)
 arrow_image = scale_img(pygame.image.load("assets/images/weapons/arrow.png").convert_alpha(),settings.WEAPON_SCALE)
+fireball_image = scale_img(pygame.image.load("assets/images/weapons/fireball.png").convert_alpha(),settings.FIREBALL_SCALE)
 
 #caga imagenes de "baldosas"
 tile_list = []
@@ -79,8 +80,6 @@ for mob in mob_types:
             temp_list.append(image)
         animation_list.append(temp_list)
     mob_animations.append(animation_list)
-
-
 
 #funcion para texto
 def draw_text(text, font, text_color, x, y):
@@ -159,6 +158,7 @@ bow = Weapon(bow_image, arrow_image)
 damage_text_group = pygame.sprite.Group()
 arrow_group = pygame.sprite.Group()
 item_group = pygame.sprite.Group()
+fireball_group = pygame.sprite.Group()
 
 score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images, True)
 item_group.add(score_coin)
@@ -193,8 +193,11 @@ while run:
 
     #actualizar enemigo
     for enemy in enemy_list:
-        enemy.ai(player, world.obstacle_tiles, screen_scroll)
-        enemy.update()
+        fireball = enemy.ai(player, world.obstacle_tiles, screen_scroll, fireball_image)
+        if fireball:
+            fireball_group.add(fireball)
+        if enemy.alive:
+            enemy.update()
     #actualizar jugador
     player.update()
     #actualiza flecha
@@ -208,6 +211,7 @@ while run:
             damage_text_group.add(damage_text)
     
     damage_text_group.update()
+    fireball_group.update(screen_scroll, player)
     item_group.update(screen_scroll, player)
 
     #? ----- dibujados
@@ -221,6 +225,8 @@ while run:
     bow.draw(screen)
     for arrow in arrow_group:
         arrow.draw(screen)
+    for fireball in fireball_group:
+        fireball.draw(screen)
     damage_text_group.draw(screen)
     item_group.draw(screen)
     draw_info()
