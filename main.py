@@ -15,7 +15,8 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 1
+level = 2
+start_intro = True
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
@@ -145,6 +146,32 @@ class DamageText(pygame.sprite.Sprite):
         if self.counter > 30:
             self.kill()
 
+
+#paneo de cambio de nivel
+class ScreenFade():
+    def __init__(self, direction, colour, speed):
+        self.direction = direction
+        self.colour = colour
+        self.speed = speed
+        self.fade_counter = 0
+    
+    def fade(self):
+        fade_complete = False
+        self.fade_counter += self.speed
+        if self.direction == 1:
+            pygame.draw.rect(screen, self.colour,(0 - self.fade_counter, 0, settings.WIDTH // 2, settings.HEIGHT))#iza
+
+            pygame.draw.rect(screen, self.colour,(settings.WIDTH // 2 + self.fade_counter, 0, settings.WIDTH, settings.HEIGHT))#der
+
+            pygame.draw.rect(screen, self.colour,(0,0 - self.fade_counter, settings.WIDTH, settings.HEIGHT//2))
+
+            pygame.draw.rect(screen, self.colour,(0, settings.HEIGHT//2 + self.fade_counter, settings.WIDTH, settings.HEIGHT))
+        
+        if self.fade_counter >= settings.WIDTH:
+            fade_complete = True
+        
+        return fade_complete
+
 #creando lista vacia de imagenes del nivel
 world_data = []
 for row in range(settings.ROWS):
@@ -179,6 +206,9 @@ item_group.add(score_coin)
 #agrega los item de los datos de nivel
 for item in world.item_list:
     item_group.add(item) 
+
+#crea el cambio de pantalla
+    intro_fade = ScreenFade(1, settings.BLACK, 5)
 
 #*Main loop-----------------------------------------
 run = True
@@ -227,7 +257,9 @@ while run:
     fireball_group.update(screen_scroll, player)
     item_group.update(screen_scroll, player)
 
-    #? ----- dibujados
+    
+
+    #? ------------------- dibujados
     #dibujo escenario
     world.draw(screen)
 
@@ -247,6 +279,7 @@ while run:
 
     #chequeamos si el nivel esta completo y cambiamos
     if level_complete == True:
+        start_intro = True
         level += 1
         #borramos la data anterior
         world_data = reset_level()
@@ -272,7 +305,12 @@ while run:
         #agrega los item de los datos de nivel
         for item in world.item_list:
             item_group.add(item) 
-                
+        
+        #mostrar intro
+    if start_intro == True:
+        if intro_fade.fade():
+            start_intro = False
+            intro_fade.fade_counter = 0
 
     #? eventos--------------------------------------------
 
