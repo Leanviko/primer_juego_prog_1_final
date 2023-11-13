@@ -259,6 +259,20 @@ while run:
 
         world = World()
         world.process_data(world_data, tile_list, item_images, mob_animations) 
+        #guardado temporal de datos de partida
+        temp_hp = player.health
+        temp_score = player.score
+        player = world.player
+        player.health = temp_hp
+        player.score = temp_score
+
+        enemy_list = world.character_list
+        score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images, True)
+        item_group.add(score_coin)
+        #agrega los item de los datos de nivel
+        for item in world.item_list:
+            item_group.add(item) 
+                
 
     #? eventos--------------------------------------------
 
