@@ -108,11 +108,21 @@ def draw_info():
     #mostrar puntaje
     draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
 
+#funcion para resetear nivel
 def reset_level():
     damage_text_group.empty()
     arrow_group.empty()
     item_group.empty()
     fireball_group.empty()
+
+    #crear una lista vacia de baldosas
+    #una "rejilla" vacia
+    data = []
+    for row in range(settings.ROWS):
+        r = [-1]*settings.COLS
+        data.append(r)
+
+    return data
 
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
@@ -235,9 +245,20 @@ while run:
     draw_info()
     score_coin.draw(screen)
 
-    #chequeamos si el nivel esta completo
+    #chequeamos si el nivel esta completo y cambiamos
     if level_complete == True:
         level += 1
+        #borramos la data anterior
+        world_data = reset_level()
+        #abrimos el nuevo archivo csv
+        with open(f"levels/level{level}_data.csv", newline="") as csvfile:
+            reader = csv.reader(csvfile, delimiter = ",")
+            for x, row in enumerate(reader):
+                for y, tile in enumerate(row):
+                    world_data[x][y] = int(tile)#se pasan a entero el valor
+
+        world = World()
+        world.process_data(world_data, tile_list, item_images, mob_animations) 
 
     #? eventos--------------------------------------------
 
