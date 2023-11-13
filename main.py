@@ -15,7 +15,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 3
+level = 1
 screen_scroll = [0, 0]
 
 # variables de movimiento del jugador
@@ -86,24 +86,6 @@ def draw_text(text, font, text_color, x, y):
     img = font.render(text, True, text_color)
     screen.blit(img, (x, y))
 
-#creando lista vacia de imagenes del nivel
-world_data = []
-for row in range(settings.ROWS):
-    r = [-1] * settings.COLS
-    world_data.append(r) # lleno primero con -1 para asignar un espacio vacio
-
-#abrimos el archivo csv
-with open(f"levels/level{level}_data.csv", newline="") as csvfile:
-    reader = csv.reader(csvfile, delimiter = ",")
-    for x, row in enumerate(reader):
-        for y, tile in enumerate(row):
-            world_data[x][y] = int(tile)#se pasan a entero el valor   
-
-
-world = World()
-world.process_data(world_data, tile_list, item_images, mob_animations)
-#print(world.map_tiles)
-
 #funcion para desplegar informacion en pantalla
 def draw_info():
     #panel
@@ -126,9 +108,15 @@ def draw_info():
     #mostrar puntaje
     draw_text(f"X{player.score}", font, settings.WHITE, settings.WIDTH - 100, 15)
 
+def reset_level():
+    damage_text_group.empty()
+    arrow_group.empty()
+    item_group.empty()
+    fireball_group.empty()
 
 #clase de texto del daño
 class DamageText(pygame.sprite.Sprite):
+
     def __init__(self,x,y,damage,color):
         pygame.sprite.Sprite.__init__(self)
         self.image = font.render(damage, True, color)
@@ -147,6 +135,21 @@ class DamageText(pygame.sprite.Sprite):
         if self.counter > 30:
             self.kill()
 
+#creando lista vacia de imagenes del nivel
+world_data = []
+for row in range(settings.ROWS):
+    r = [-1] * settings.COLS
+    world_data.append(r) # lleno primero con -1 para asignar un espacio vacio
+
+#abrimos el archivo csv
+with open(f"levels/level{level}_data.csv", newline="") as csvfile:
+    reader = csv.reader(csvfile, delimiter = ",")
+    for x, row in enumerate(reader):
+        for y, tile in enumerate(row):
+            world_data[x][y] = int(tile)#se pasan a entero el valor   
+
+world = World()
+world.process_data(world_data, tile_list, item_images, mob_animations)
 
 #creacion jugador y enemigos
 player = world.player
@@ -186,7 +189,7 @@ while run:
 
     #? ----- actualizaciones
     #actualizar movimiento jugador
-    screen_scroll = player.move(dx, dy, world.obstacle_tiles)
+    screen_scroll, level_complete = player.move(dx, dy, world.obstacle_tiles, world.exit_tile)
     
     #actualizar todos los objetos
     world.update(screen_scroll)
@@ -231,6 +234,10 @@ while run:
     item_group.draw(screen)
     draw_info()
     score_coin.draw(screen)
+
+    #chequeamos si el nivel esta completo
+    if level_complete == True:
+        level += 1
 
     #? eventos--------------------------------------------
 

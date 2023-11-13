@@ -30,11 +30,11 @@ class Character():
         self.rect = pygame.Rect(0,0, settings.TILE_SIZE * size,settings.TILE_SIZE * size)
         self.rect.center = (x, y)
     
-    def move(self,dx,dy, obstacle_tiles):
-
+    def move(self,dx,dy, obstacle_tiles, exit_tile = None):
         screen_scroll = [0, 0]
-
+        level_complete = False
         self.running = False
+
         if dx != 0 or dy != 0:
             self.running = True
         if dx < 0:
@@ -69,6 +69,15 @@ class Character():
 
         #logica aplicada solo al jugador
         if self.char_type == 0:
+            #chequear colision con la escalera de salida
+            dis_x = (self.rect.centerx - exit_tile[1].centerx)
+            dis_y = (self.rect.centery - exit_tile[1].centery)
+
+            if exit_tile[1].colliderect(self.rect):
+                exit_dist = math.sqrt((dis_x**2) + (dis_y**2))
+                if exit_dist < 20:
+                    level_complete = True
+
             #actualizar scroll en base a la posicion del jugador
             #mover la camara izq y der. Se moverá antes de llegar al borde 
             if self.rect.right > (settings.WIDTH - settings.SCROLL_THRESHOLD):
@@ -86,7 +95,7 @@ class Character():
                 screen_scroll[1] = settings.SCROLL_THRESHOLD - self.rect.top
                 self.rect.top = settings.SCROLL_THRESHOLD
 
-        return screen_scroll
+        return screen_scroll, level_complete
 
     #funcion logica solo aplicada a los enemigos
     def ai(self, player, obstacle_tiles, screen_scroll, fireball_image):

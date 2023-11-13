@@ -28,7 +28,7 @@ class World():
 
                 if tile == 7:#muros
                     self.obstacle_tiles.append(tile_data)
-                elif tile == 8:
+                elif tile == 8: #salida, despues se usará para cambiar de nivel
                     self.exit_tile = tile_data
                 elif tile == 9:
                     coin = Item(image_x, image_y, 0, item_images[0])
