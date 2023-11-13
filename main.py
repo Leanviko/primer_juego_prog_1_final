@@ -160,12 +160,12 @@ class ScreenFade():
         self.fade_counter += self.speed
         if self.direction == 1:
             pygame.draw.rect(screen, self.colour,(0 - self.fade_counter, 0, settings.WIDTH // 2, settings.HEIGHT))#iza
-
             pygame.draw.rect(screen, self.colour,(settings.WIDTH // 2 + self.fade_counter, 0, settings.WIDTH, settings.HEIGHT))#der
-
-            pygame.draw.rect(screen, self.colour,(0,0 - self.fade_counter, settings.WIDTH, settings.HEIGHT//2))
-
-            pygame.draw.rect(screen, self.colour,(0, settings.HEIGHT//2 + self.fade_counter, settings.WIDTH, settings.HEIGHT))
+            pygame.draw.rect(screen, self.colour,(0,0 - self.fade_counter, settings.WIDTH, settings.HEIGHT//2))#arriba
+            pygame.draw.rect(screen, self.colour,(0, settings.HEIGHT//2 + self.fade_counter, settings.WIDTH, settings.HEIGHT))#abajo
+        
+        elif self.direction == 2:
+            pygame.draw.rect(screen, self.colour,(0, 0, settings.WIDTH, 0 + self.fade_counter))
         
         if self.fade_counter >= settings.WIDTH:
             fade_complete = True
@@ -209,53 +209,57 @@ for item in world.item_list:
 
 #crea el cambio de pantalla
     intro_fade = ScreenFade(1, settings.BLACK, 5)
+    death_fade = ScreenFade(2, settings.PINK, 5)
 
 #*Main loop-----------------------------------------
 run = True
 while run:
+
+
     clock.tick(settings.FPS)
     screen.fill(settings.BG)
 
-    dx=0
-    dy=0
-    if moving_right == True:
-        dx += settings.SPEED
-    if moving_left == True:
-        dx -= settings.SPEED
-    if moving_up == True:
-        dy -= settings.SPEED
-    if moving_down == True:
-        dy += settings.SPEED
+    if player.alive:
+        dx=0
+        dy=0
+        if moving_right == True:
+            dx += settings.SPEED
+        if moving_left == True:
+            dx -= settings.SPEED
+        if moving_up == True:
+            dy -= settings.SPEED
+        if moving_down == True:
+            dy += settings.SPEED
 
     #? ----- actualizaciones
-    #actualizar movimiento jugador
-    screen_scroll, level_complete = player.move(dx, dy, world.obstacle_tiles, world.exit_tile)
+        #actualizar movimiento jugador
+        screen_scroll, level_complete = player.move(dx, dy, world.obstacle_tiles, world.exit_tile)
     
-    #actualizar todos los objetos
-    world.update(screen_scroll)
+        #actualizar todos los objetos
+        world.update(screen_scroll)
 
-    #actualizar enemigo
-    for enemy in enemy_list:
-        fireball = enemy.ai(player, world.obstacle_tiles, screen_scroll, fireball_image)
-        if fireball:
-            fireball_group.add(fireball)
-        if enemy.alive:
-            enemy.update()
-    #actualizar jugador
-    player.update()
-    #actualiza flecha
-    arrow = bow.update(player)
-    if arrow:
-        arrow_group.add(arrow)
-    for arrow in arrow_group:
-        damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list) #retorna 2 valores
-        if damage:
-            damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),settings.RED)
-            damage_text_group.add(damage_text)
-    
-    damage_text_group.update()
-    fireball_group.update(screen_scroll, player)
-    item_group.update(screen_scroll, player)
+        #actualizar enemigo
+        for enemy in enemy_list:
+            fireball = enemy.ai(player, world.obstacle_tiles, screen_scroll, fireball_image)
+            if fireball:
+                fireball_group.add(fireball)
+            if enemy.alive:
+                enemy.update()
+        #actualizar jugador
+        player.update()
+        #actualiza flecha
+        arrow = bow.update(player)
+        if arrow:
+            arrow_group.add(arrow)
+        for arrow in arrow_group:
+            damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list) #retorna 2 valores
+            if damage:
+                damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),settings.RED)
+                damage_text_group.add(damage_text)
+        
+        damage_text_group.update()
+        fireball_group.update(screen_scroll, player)
+        item_group.update(screen_scroll, player)
 
     
 
@@ -311,7 +315,32 @@ while run:
         if intro_fade.fade():
             start_intro = False
             intro_fade.fade_counter = 0
+            
 
+    if player.alive == False:
+        if death_fade.fade():
+            death_fade.fade_counter = 0
+            start_intro = True
+            #borramos la data anterior
+            world_data = reset_level()
+            #abrimos el nuevo archivo csv
+            with open(f"levels/level{level}_data.csv", newline="") as csvfile:
+                reader = csv.reader(csvfile, delimiter = ",")
+                for x, row in enumerate(reader):
+                    for y, tile in enumerate(row):
+                        world_data[x][y] = int(tile)#se pasan a entero el valor
+            world = World()
+            world.process_data(world_data, tile_list, item_images, mob_animations) 
+            #guardado temporal de datos de partida
+            temp_score = player.score
+            player = world.player
+            player.score = temp_score
+            enemy_list = world.character_list
+            score_coin = Item(settings.WIDTH - 120, 23, 0, coin_images, True)
+            item_group.add(score_coin)
+            #agrega los item de los datos de nivel
+            for item in world.item_list:
+                item_group.add(item) 
     #? eventos--------------------------------------------
 
     for event in pygame.event.get():
