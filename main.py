@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 import csv
 import settings 
 from character import Character
@@ -7,6 +8,7 @@ from items import Item
 from world import World
 from button import Button
 
+mixer.init()
 pygame.init()
 
 
@@ -16,7 +18,7 @@ pygame.display.set_caption('Jueguito')
 clock =  pygame.time.Clock()
 
 #definimos variables del juego
-level = 2
+level = 1
 start_game = False
 pause_game = False
 start_intro = False
@@ -31,11 +33,25 @@ moving_down = False
 #definimos fuente
 font = pygame.font.Font("assets/fonts/AtariClassic.ttf",20)
 
-#funcion para escalar
+#funcion para escalar imagenes
 def scale_img(image,scale):
     w = image.get_width()
     h = image.get_height()
     return pygame.transform.scale(image,(w*scale,h*scale))
+
+# cargar musica y sonidos
+mixer.music.load("assets/audio/music.wav")
+mixer.music.set_volume(0.3)
+mixer.music.play(-1, 0.0, 5000)
+shot_fx = mixer.Sound("assets/audio/arrow_shot.mp3")
+shot_fx.set_volume(0.5)
+hit_fx = mixer.Sound("assets/audio/arrow_hit.wav")
+hit_fx.set_volume(0.5)
+coin_fx = mixer.Sound("assets/audio/coin.wav")
+coin_fx.set_volume(0.5)
+heal_fx = mixer.Sound("assets/audio/heal.wav")
+heal_fx.set_volume(0.5)
+
 
 #imagenes de botones
 restart_img = scale_img(pygame.image.load("assets/images/buttons/button_restart.png").convert_alpha(), settings.BUTTON_SCALE)
@@ -280,15 +296,17 @@ while run:
                 arrow = bow.update(player)
                 if arrow:
                     arrow_group.add(arrow)
+                    shot_fx.play()
                 for arrow in arrow_group:
                     damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list) #retorna 2 valores
                     if damage:
                         damage_text = DamageText(damage_pos.centerx,damage_pos.y,str(damage),settings.RED)
                         damage_text_group.add(damage_text)
+                        hit_fx.play()
                 
                 damage_text_group.update()
                 fireball_group.update(screen_scroll, player)
-                item_group.update(screen_scroll, player)
+                item_group.update(screen_scroll, player, coin_fx, heal_fx)
 
             
 
